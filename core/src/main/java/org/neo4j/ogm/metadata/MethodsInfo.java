@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * @author Vince Bickers
  * @author Luanne Misquitta
+ * @author Michael J. Simons
  */
 public class MethodsInfo {
 
@@ -37,7 +38,7 @@ public class MethodsInfo {
 
         for (Method method : cls.getDeclaredMethods()) {
             final int modifiers = method.getModifiers();
-            if (!Modifier.isTransient(modifiers) && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+            if (!Modifier.isTransient(modifiers) && !Modifier.isStatic(modifiers)) {
                 ObjectAnnotations objectAnnotations = new ObjectAnnotations();
                 final Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
                 for (Annotation annotation : declaredAnnotations) {
@@ -47,10 +48,6 @@ public class MethodsInfo {
                 methods.put(method.getName(), new MethodInfo(method, objectAnnotations));
             }
         }
-    }
-
-    public MethodsInfo(Map<String, MethodInfo> methods) {
-        this.methods = new HashMap<>(methods);
     }
 
     public Collection<MethodInfo> methods() {

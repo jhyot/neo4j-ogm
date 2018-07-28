@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.postload.User;
+import org.neo4j.ogm.domain.postload.UserWithBetterPostLoadMethod;
 import org.neo4j.ogm.session.Session;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.testutil.MultiDriverTestClass;
@@ -29,6 +30,7 @@ import org.neo4j.ogm.testutil.MultiDriverTestClass;
  * Test for {@link org.neo4j.ogm.annotation.PostLoad} annotation behaviour
  *
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class PostLoadTest extends MultiDriverTestClass {
 
@@ -47,6 +49,20 @@ public class PostLoadTest extends MultiDriverTestClass {
         session.purgeDatabase();
         User.resetPostLoadCount();
     }
+
+    @Test
+    public void shouldCallNonPublicFinalPostLoad() throws Exception {
+        UserWithBetterPostLoadMethod user = new UserWithBetterPostLoadMethod();
+        session.save(user);
+
+        session.clear();
+
+        UserWithBetterPostLoadMethod loaded = session.load(UserWithBetterPostLoadMethod.class, user.getId());
+        assertThat(loaded).isNotNull();
+
+        assertThat(loaded.getRandomName()).isNotEqualTo(user.getRandomName());
+    }
+
 
     @Test
     public void shouldCallPostLoadMethod() throws Exception {
