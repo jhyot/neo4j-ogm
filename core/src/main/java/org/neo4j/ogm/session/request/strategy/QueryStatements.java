@@ -62,7 +62,11 @@ public interface QueryStatements<ID extends Serializable> {
      * @param depth the depth to traverse for related objects
      * @return a {@link PagingAndSortingQuery}
      */
-    PagingAndSortingQuery findByType(String type, int depth);
+    default PagingAndSortingQuery findByType(String type, int depth) {
+        return findByType(type, depth, false);
+    }
+
+    PagingAndSortingQuery findByType(String type, int depth, boolean distinct);
 
     /**
      * construct queries to fetch all objects with the specified label that match the specified filters
@@ -72,6 +76,9 @@ public interface QueryStatements<ID extends Serializable> {
      * @param depth   the depth to traverse for related objects
      * @return a {@link PagingAndSortingQuery}
      */
+    default PagingAndSortingQuery findByType(String type, Filters filters, int depth) {
+        return findByType(type, filters, depth, false);
+    }
 
-    PagingAndSortingQuery findByType(String type, Filters filters, int depth);
+    PagingAndSortingQuery findByType(String type, Filters filters, int depth, boolean distinct);
 }

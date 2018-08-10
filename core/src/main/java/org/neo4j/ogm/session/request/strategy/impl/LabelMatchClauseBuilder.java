@@ -21,12 +21,12 @@ import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 public class LabelMatchClauseBuilder implements MatchClauseBuilder {
 
     @Override
-    public String build(String label) {
-        return "MATCH (n:`" + label + "`) WITH n";
+    public String build(String label, boolean distinct) {
+        return String.format("MATCH (n:`" + label + "`) WITH %sn", distinct ? "DISTINCT " : "");
     }
 
     @Override
-    public String build(String label, String property) {
+    public String build(String label, String property, boolean distinct) {
         throw new UnsupportedOperationException("MATCH by Label not supported with property parameter");
     }
 }

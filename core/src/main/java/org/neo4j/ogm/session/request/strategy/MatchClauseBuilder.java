@@ -15,10 +15,19 @@ package org.neo4j.ogm.session.request.strategy;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public interface MatchClauseBuilder {
 
-    String build(String label);
+    default String build(String label) {
+        return build(label, false);
+    }
 
-    String build(String label, String property);
+    String build(String label, boolean distinct);
+
+    default String build(String label, String property) {
+        return build(label, property, false);
+    }
+
+    String build(String label, String property, boolean distinct);
 }

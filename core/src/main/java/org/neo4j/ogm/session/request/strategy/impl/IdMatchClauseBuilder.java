@@ -17,24 +17,34 @@ import org.neo4j.ogm.session.request.strategy.MatchClauseBuilder;
 
 /**
  * @author Frantisek Hartman
+ * @author Michael J. Simons
  */
 public class IdMatchClauseBuilder implements MatchClauseBuilder {
 
     @Override
-    public String build(String label) {
+    public String build(String label, boolean distinct) {
+        String matchClauseFormat;
         if (label == null || label.isEmpty()) {
-            return "MATCH (n) WHERE ID(n) = { id } WITH n";
+            matchClauseFormat = "MATCH (n) WHERE ID(n) = { id } WITH %sn";
         } else {
-            return "MATCH (n:`" + label + "`) WHERE ID(n) = { id } WITH n";
+            matchClauseFormat = "MATCH (n:`" + label + "`) WHERE ID(n) = { id } WITH %sn";
         }
+        return formatMatchClause(matchClauseFormat, distinct);
     }
 
     @Override
-    public String build(String label, String property) {
+    public String build(String label, String property, boolean distinct) {
+
+        String matchClauseFormat;
         if (label == null || label.isEmpty()) {
-            return "MATCH (n) WHERE n.`" + property + "` = { id } WITH n";
+            matchClauseFormat  = "MATCH (n) WHERE n.`" + property + "` = { id } WITH %sn";
         } else {
-            return "MATCH (n:`" + label + "`) WHERE n.`" + property + "` = { id } WITH n";
+            matchClauseFormat = "MATCH (n:`" + label + "`) WHERE n.`" + property + "` = { id } WITH %sn";
         }
+        return formatMatchClause(matchClauseFormat, distinct);
+    }
+
+    private static String formatMatchClause(String matchClauseFormat, boolean distinct) {
+        return String.format(matchClauseFormat, distinct ? "DISTINCT " : "");
     }
 }

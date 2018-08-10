@@ -32,6 +32,7 @@ import org.neo4j.ogm.session.request.strategy.QueryStatements;
  * @author Luanne Misquitta
  * @author Mark Angrish
  * @author Nicolas Mervaillie
+ * @author Michael J. Simons
  */
 public class NodeQueryStatements<ID extends Serializable> implements QueryStatements<ID> {
 
@@ -42,11 +43,6 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
     private MatchClauseBuilder labelMatchClauseBuilder = new LabelMatchClauseBuilder();
 
     private LoadClauseBuilder loadClauseBuilder;
-
-    // todo remove this constructor?
-    public NodeQueryStatements() {
-        loadClauseBuilder = new PathNodeLoadClauseBuilder();
-    }
 
     public NodeQueryStatements(String primaryIndex, LoadClauseBuilder loadClauseBuilder) {
         this.primaryIndex = primaryIndex;
@@ -60,6 +56,7 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
 
     @Override
     public PagingAndSortingQuery findOneByType(String label, ID id, int depth) {
+
         String matchClause;
         if (primaryIndex != null) {
             matchClause = idMatchClauseBuilder.build(label, primaryIndex);
@@ -67,11 +64,13 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             matchClause = idMatchClauseBuilder.build(label);
         }
         String returnClause = loadClauseBuilder.build(label, depth);
-        return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("id", id), depth != 0, false);
+        boolean returnsPath = depth != 0;
+        return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("id", id), returnsPath, false);
     }
 
     @Override
     public PagingAndSortingQuery findAllByType(String label, Collection<ID> ids, int depth) {
+
         String matchClause;
         if (primaryIndex != null) {
             matchClause = idCollectionMatchClauseBuilder.build(label, primaryIndex);
@@ -79,22 +78,27 @@ public class NodeQueryStatements<ID extends Serializable> implements QueryStatem
             matchClause = idCollectionMatchClauseBuilder.build(label);
         }
         String returnClause = loadClauseBuilder.build(label, depth);
-        return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("ids", ids), depth != 0, false);
+        boolean returnsPath = depth != 0;
+        return new PagingAndSortingQuery(matchClause, returnClause, Utils.map("ids", ids), returnsPath, false);
     }
 
     @Override
-    public PagingAndSortingQuery findByType(String label, int depth) {
-        String matchClause = labelMatchClauseBuilder.build(label);
+    public PagingAndSortingQuery findByType(String label, int depth, boolean distinct) {
+
+        String matchClause = labelMatchClauseBuilder.build(label, distinct);
         String returnClause = loadClauseBuilder.build(label, depth);
-        return new PagingAndSortingQuery(matchClause, returnClause, Utils.map(), depth != 0, false);
+        final boolean returnsPath = depth != 0;
+        return new PagingAndSortingQuery(matchClause, returnClause, Utils.map(), returnsPath, false);
     }
 
     @Override
-    public PagingAndSortingQuery findByType(String label, Filters parameters, int depth) {
+    public PagingAndSortingQuery findByType(String label, Filters parameters, int depth, boolean distinct) {
+
         FilteredQuery filteredQuery = FilteredQueryBuilder.buildNodeQuery(label, parameters);
         String matchClause = filteredQuery.statement();
         String returnClause = loadClauseBuilder.build(label, depth);
-        return new PagingAndSortingQuery(matchClause, returnClause, filteredQuery.parameters(), depth != 0, true);
+        boolean returnsPath = depth != 0;
+        return new PagingAndSortingQuery(matchClause, returnClause, filteredQuery.parameters(), returnsPath, true);
     }
 
 }
