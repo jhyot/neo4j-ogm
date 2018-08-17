@@ -34,10 +34,6 @@ public class InvalidAnnotations {
         @Id @GeneratedValue Long id;
     }
 
-    public static class NeitherGraphIdOrId {
-        public String property;
-    }
-
     public static class BothIdAndPrimaryIndexOnDifferentProperty {
         @Id public String identifier;
         @Index(primary = true, unique = true) public String other;

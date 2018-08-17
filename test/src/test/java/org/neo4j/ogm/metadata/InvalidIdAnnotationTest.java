@@ -15,6 +15,7 @@ package org.neo4j.ogm.metadata;
 
 import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
+import org.neo4j.ogm.domain.invalid.withoutid.NeitherGraphIdNorId;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
 import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations.GraphIdAndIdWithInternalStrategy;
 import org.neo4j.ogm.exception.core.MetadataException;
@@ -35,7 +36,7 @@ public class InvalidIdAnnotationTest {
 
     @Test(expected = MetadataException.class)
     public void shouldRejectNeitherGraphIdOrId() throws Exception {
-        createMetadataAndCheckIdentityField(InvalidAnnotations.NeitherGraphIdOrId.class.getName());
+        createMetadataAndCheckIdentityField(NeitherGraphIdNorId.class.getName());
     }
 
     @Test(expected = MetadataException.class)

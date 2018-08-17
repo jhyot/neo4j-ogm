@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.ogm.domain.annotations.ids.ValidAnnotations;
-import org.neo4j.ogm.domain.invalid.ids.InvalidAnnotations;
+import org.neo4j.ogm.domain.invalid.withoutid.NeitherGraphIdNorId;
 import org.neo4j.ogm.exception.core.MappingException;
 import org.neo4j.ogm.id.IdStrategy;
 import org.neo4j.ogm.session.Session;
@@ -37,7 +37,7 @@ public class IdGenerationTest extends MultiDriverTestClass {
     @BeforeClass
     public static void oneTimeSetUp() {
         sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids"
-            , "org.neo4j.ogm.domain.annotations.invalid.ids");
+            , "org.neo4j.ogm.domain.invalid.withoutid");
     }
 
     @Before
@@ -125,7 +125,11 @@ public class IdGenerationTest extends MultiDriverTestClass {
     @Test
     public void saveWithContextIdStrategy() throws Exception {
         CustomInstanceIdStrategy strategy = new CustomInstanceIdStrategy("test-custom-instance-id");
+
+        // create new session factory for registering strategy without interfering with other tests
+        SessionFactory sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids");
         sessionFactory.register(strategy);
+        session = sessionFactory.openSession();
 
         ValidAnnotations.WithCustomInstanceIdStrategy entity = new ValidAnnotations.WithCustomInstanceIdStrategy();
         session.save(entity);
@@ -141,10 +145,6 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
     @Test(expected = MappingException.class)
     public void saveWithCustomInstaceIdStrategyWhenStrategyNotRegistered() throws Exception {
-        // create new session factory without registered instance of the strategy
-        sessionFactory = new SessionFactory(driver, "org.neo4j.ogm.domain.annotations.ids");
-        session = sessionFactory.openSession();
-
         ValidAnnotations.WithCustomInstanceIdStrategy entity = new ValidAnnotations.WithCustomInstanceIdStrategy();
         session.save(entity);
     }
@@ -171,14 +171,14 @@ public class IdGenerationTest extends MultiDriverTestClass {
 
     @Test
     public void shouldRejectSavingEntityWithoutId() throws Exception {
-        assertThatThrownBy(() -> session.save(new InvalidAnnotations.NeitherGraphIdOrId()))
+        assertThatThrownBy(() -> session.save(new NeitherGraphIdNorId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
     }
 
     @Test
     public void shouldRejectDeletingEntityWithoutId() throws Exception {
-        assertThatThrownBy(() -> session.delete(new InvalidAnnotations.NeitherGraphIdOrId()))
+        assertThatThrownBy(() -> session.delete(new NeitherGraphIdNorId()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("is not a valid entity class");
     }
